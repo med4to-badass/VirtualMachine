@@ -1,0 +1,3 @@
+# ISOs são arquivos grandes — não versionar
+*.iso
+*.img
