@@ -1,0 +1,89 @@
+<domain type="kvm">
+  <name>vm1</name>
+  <uuid>11111111-1111-1111-1111-111111111111</uuid>
+  <memory unit="GiB">8</memory>
+  <currentMemory unit="GiB">8</currentMemory>
+  <vcpu placement="static">4</vcpu>
+
+  <features>
+    <acpi/>
+    <apic/>
+    <hyperv mode="custom">
+      <relaxed state="on"/>
+      <vapic state="on"/>
+      <spinlocks state="on" retries="8191"/>
+      <vendor_id state="on" value="AuthenticAMD"/>
+    </hyperv>
+    <kvm>
+      <hidden state="on"/>
+    </kvm>
+    <vmport state="off"/>
+    <ioapic driver="kvm"/>
+  </features>
+
+  <cpu mode="host-passthrough" check="none" migratable="on">
+    <topology sockets="1" dies="1" cores="4" threads="1"/>
+  </cpu>
+
+  <clock offset="localtime">
+    <timer name="rtc" tickpolicy="catchup"/>
+    <timer name="pit" tickpolicy="delay"/>
+    <timer name="hpet" present="no"/>
+    <timer name="hypervclock" present="yes"/>
+  </clock>
+
+  <os>
+    <type arch="x86_64" machine="q35">hvm</type>
+    <loader readonly="yes" type="pflash">/usr/share/OVMF/OVMF_CODE.fd</loader>
+    <nvram>/var/lib/libvirt/qemu/nvram/vm1_VARS.fd</nvram>
+    <boot dev="hd"/>
+  </os>
+
+  <pm>
+    <suspend-to-mem enabled="no"/>
+    <suspend-to-disk enabled="no"/>
+  </pm>
+
+  <devices>
+    <!-- Disco principal (ajuste o path) -->
+    <disk type="file" device="disk">
+      <driver name="qemu" type="qcow2" cache="writeback" discard="unmap"/>
+      <source file="/var/lib/libvirt/images/vm1.qcow2"/>
+      <target dev="vda" bus="virtio"/>
+      <address type="pci" domain="0x0000" bus="0x04" slot="0x00" function="0x0"/>
+    </disk>
+
+    <!-- GPU VF 1 (SR-IOV) — substitua domain/bus/slot/function pelo endereço real da VF -->
+    <hostdev mode="subsystem" type="pci" managed="yes">
+      <source>
+        <address domain="0x0000" bus="0x01" slot="0x00" function="0x1"/>
+      </source>
+      <address type="pci" domain="0x0000" bus="0x06" slot="0x00" function="0x0"/>
+    </hostdev>
+
+    <!-- Rede -->
+    <interface type="network">
+      <source network="default"/>
+      <model type="virtio"/>
+    </interface>
+
+    <!-- Console serial -->
+    <serial type="pty">
+      <target type="isa-serial" port="0"/>
+    </serial>
+
+    <!-- SPICE display (remova se não precisar de interface gráfica no host) -->
+    <graphics type="spice" autoport="yes">
+      <listen type="address"/>
+      <image compression="off"/>
+    </graphics>
+    <video>
+      <model type="none"/>
+    </video>
+
+    <memballoon model="virtio"/>
+    <rng model="virtio">
+      <backend model="random">/dev/urandom</backend>
+    </rng>
+  </devices>
+</domain>

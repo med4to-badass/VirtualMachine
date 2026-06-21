@@ -1,0 +1,22 @@
+[Unit]
+Description=GPU SR-IOV Virtual Functions setup
+After=network.target
+Before=libvirtd.service
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+# Ajuste PCI_ADDR e NUM_VFS conforme sua GPU
+Environment=PCI_ADDR=0000:01:00.0
+Environment=NUM_VFS=2
+ExecStart=/bin/bash -c 'echo ${NUM_VFS} > /sys/bus/pci/devices/${PCI_ADDR}/sriov_numvfs'
+ExecStart=/bin/bash -c '\
+  for i in $(seq 1 ${NUM_VFS}); do \
+    VF="${PCI_ADDR%.*}.${i}"; \
+    echo vfio-pci > /sys/bus/pci/devices/${VF}/driver_override; \
+    echo ${VF} > /sys/bus/pci/drivers/vfio-pci/bind; \
+  done'
+ExecStop=/bin/bash -c 'echo 0 > /sys/bus/pci/devices/${PCI_ADDR}/sriov_numvfs'
+
+[Install]
+WantedBy=multi-user.target
