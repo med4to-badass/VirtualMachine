@@ -1,36 +1,60 @@
 #!/usr/bin/env bash
 # Instala dependências para KVM + GPU Share (SR-IOV / vGPU)
+# Detecta automaticamente se KVM está disponível
 set -euo pipefail
+
+IN_CONTAINER=false
+if grep -q docker /proc/1/cgroup 2>/dev/null || [ -f /.dockerenv ]; then
+  IN_CONTAINER=true
+fi
+
+KVM_AVAILABLE=false
+if [ -e /dev/kvm ]; then
+  KVM_AVAILABLE=true
+fi
+
+echo "=== Ambiente detectado ==="
+echo "  Container: $IN_CONTAINER"
+echo "  KVM disponível: $KVM_AVAILABLE"
+echo ""
 
 apt-get update -y
 apt-get install -y \
-  qemu-kvm \
+  qemu-system-x86 \
+  qemu-utils \
   libvirt-daemon-system \
   libvirt-clients \
   bridge-utils \
-  virt-manager \
-  cpu-checker \
   ovmf \
-  swtpm \
   virtinst \
-  numactl \
-  hugepages \
-  linux-headers-$(uname -r) \
-  dkms \
+  cpu-checker \
   pciutils \
-  lshw
+  lshw \
+  numactl
 
-# Habilita e inicia libvirt
-systemctl enable --now libvirtd
-
-# Verifica KVM
-kvm-ok && echo "[OK] KVM disponível"
-
-# Verifica IOMMU
-if grep -q "iommu=on\|intel_iommu=on\|amd_iommu=on" /proc/cmdline; then
-  echo "[OK] IOMMU ativo"
+if $KVM_AVAILABLE; then
+  apt-get install -y qemu-kvm
+  systemctl enable --now libvirtd
+  echo "[OK] KVM habilitado"
 else
-  echo "[AVISO] IOMMU não está ativo — adicione ao GRUB e reinicie (veja scripts/01-enable-iommu.sh)"
+  echo "[AVISO] KVM não disponível — VMs rodarão em modo QEMU/TCG (mais lento)"
+  echo "         Em bare-metal com vmx/svm, execute: scripts/01-enable-iommu.sh e reinicie"
+  if $IN_CONTAINER; then
+    echo "         Para testar 2 VMs agora neste container, use: docker compose up (docker-compose.yml)"
+  fi
 fi
 
+if $IN_CONTAINER; then
+  echo ""
+  echo "[INFO] Rodando em container Docker. GPU passthrough/SR-IOV não é possível aqui."
+  echo "       Use o docker-compose.yml para simular as 2 VMs com GPU virtual (VirtIO)."
+else
+  if grep -q "iommu" /proc/cmdline; then
+    echo "[OK] IOMMU ativo"
+  else
+    echo "[AVISO] IOMMU não ativo — execute scripts/01-enable-iommu.sh e reinicie"
+  fi
+fi
+
+echo ""
 echo "Instalação concluída."

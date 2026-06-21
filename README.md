@@ -1,29 +1,51 @@
 # VirtualMachine — 2 VMs com GPU Share
 
-Infraestrutura KVM/QEMU para rodar **2 VMs compartilhando 1 GPU física** via SR-IOV ou NVIDIA MIG.
+Infraestrutura KVM/QEMU para rodar **2 VMs compartilhando 1 GPU física** via SR-IOV ou NVIDIA MIG.  
+Inclui modo Docker Compose para ambientes sem KVM (containers, CI, cloud).
 
-## Arquitetura
+## Modos de operação
+
+| Modo | Quando usar | Como iniciar |
+|------|------------|-------------|
+| **Docker Compose** | Container / sem KVM / teste rápido | `docker compose up` |
+| **KVM + SR-IOV** | Bare-metal com GPU SR-IOV | scripts `00` → `07` |
+| **KVM + NVIDIA MIG** | A100 / H100 / A30 | scripts `00-02` + `configs/gpu/nvidia-mig.sh` |
+
+## Arquitetura (bare-metal)
 
 ```
 Host (Linux + KVM)
 ├── GPU física (SR-IOV)
 │   ├── VF 0 → vm1
 │   └── VF 1 → vm2
-├── vm1  (8 GiB RAM, 4 vCPUs, 50 GB disco, GPU VF 1)
-└── vm2  (8 GiB RAM, 4 vCPUs, 50 GB disco, GPU VF 2)
+├── vm1  (6 GiB RAM, 2 vCPUs, 50 GB disco, GPU VF 1)
+└── vm2  (6 GiB RAM, 2 vCPUs, 50 GB disco, GPU VF 2)
 ```
 
-## Requisitos do servidor
+> Recursos dimensionados para host com **15 GiB RAM / 4 vCPUs** — ajuste nos XMLs se o seu servidor tiver mais.
+
+## Requisitos do servidor (modo KVM)
 
 | Item | Mínimo |
 |------|--------|
 | CPU | Intel VT-d **ou** AMD-Vi (IOMMU) |
-| RAM | 20 GB (8×2 VMs + host) |
+| RAM | 14 GB (6×2 VMs + host) |
 | GPU | NVIDIA A-series (SR-IOV/MIG) **ou** Intel Arc/Data Center |
 | OS  | Ubuntu 22.04 / Debian 12 |
 | Kernel | 5.15+ |
 
-## Passo a passo
+## Passo a passo rápido — Docker (sem KVM)
+
+```bash
+docker compose up -d
+docker compose logs -f
+```
+
+Isso sobe `vm1`, `vm2` e o `gpu-broker` (gerenciador de GPU share virtual) em uma rede interna `10.100.0.0/24`.
+
+---
+
+## Passo a passo — Bare-metal KVM
 
 ### 1. Instalar dependências
 ```bash
@@ -88,6 +110,7 @@ sudo bash scripts/install-systemd-service.sh
 
 ```
 .
+├── docker-compose.yml           # Modo container (sem KVM)
 ├── configs/
 │   ├── gpu/
 │   │   └── nvidia-mig.sh        # Setup NVIDIA MIG

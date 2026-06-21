@@ -1,0 +1,103 @@
+version: "3.9"
+
+# Simula 2 VMs com GPU virtual (VirtIO) para ambientes sem KVM (containers, CI)
+# Em bare-metal com KVM, use os scripts/ + XMLs libvirt diretamente.
+
+x-vm-base: &vm-base
+  image: debian:12-slim
+  privileged: true
+  restart: unless-stopped
+  cap_add:
+    - NET_ADMIN
+    - SYS_ADMIN
+  devices:
+    - /dev/net/tun
+  volumes:
+    - ./scripts:/vm/scripts:ro
+    - ./configs:/vm/configs:ro
+    - vm-shared:/mnt/shared
+  networks:
+    - vmnet
+
+services:
+  vm1:
+    <<: *vm-base
+    container_name: vm1
+    hostname: vm1
+    environment:
+      VM_NAME: vm1
+      VM_CPUS: "2"
+      VM_RAM: "6144"   # MiB
+      GPU_VF: "vf0"    # Virtual Function simulada
+    volumes:
+      - ./scripts:/vm/scripts:ro
+      - ./configs:/vm/configs:ro
+      - vm1-disk:/var/lib/vm
+      - vm-shared:/mnt/shared
+    command: >
+      bash -c "
+        echo '[vm1] Iniciando ambiente virtual...' &&
+        echo '[vm1] CPUs: $$VM_CPUS | RAM: $$VM_RAM MiB | GPU VF: $$GPU_VF' &&
+        apt-get update -qq && apt-get install -y -qq procps iproute2 &&
+        echo '[vm1] Pronto. GPU share via VirtIO simulado.' &&
+        tail -f /dev/null
+      "
+
+  vm2:
+    <<: *vm-base
+    container_name: vm2
+    hostname: vm2
+    environment:
+      VM_NAME: vm2
+      VM_CPUS: "2"
+      VM_RAM: "6144"   # MiB
+      GPU_VF: "vf1"    # Virtual Function simulada
+    volumes:
+      - ./scripts:/vm/scripts:ro
+      - ./configs:/vm/configs:ro
+      - vm2-disk:/var/lib/vm
+      - vm-shared:/mnt/shared
+    command: >
+      bash -c "
+        echo '[vm2] Iniciando ambiente virtual...' &&
+        echo '[vm2] CPUs: $$VM_CPUS | RAM: $$VM_RAM MiB | GPU VF: $$GPU_VF' &&
+        apt-get update -qq && apt-get install -y -qq procps iproute2 &&
+        echo '[vm2] Pronto. GPU share via VirtIO simulado.' &&
+        tail -f /dev/null
+      "
+
+  # Bridge de GPU compartilhada: recebe workloads de vm1 e vm2 e os despacha
+  gpu-broker:
+    image: debian:12-slim
+    container_name: gpu-broker
+    hostname: gpu-broker
+    restart: unless-stopped
+    environment:
+      GPU_TOTAL_MEM: "8192"   # MiB de VRAM total simulada
+      GPU_VF_COUNT: "2"
+    networks:
+      - vmnet
+    volumes:
+      - vm-shared:/mnt/shared
+    command: >
+      bash -c "
+        echo '[gpu-broker] GPU Share broker iniciado' &&
+        echo '[gpu-broker] VRAM total: $$GPU_TOTAL_MEM MiB | VFs ativas: $$GPU_VF_COUNT' &&
+        mkdir -p /mnt/shared/gpu &&
+        echo 'vf0:$$((GPU_TOTAL_MEM / GPU_VF_COUNT))MiB' > /mnt/shared/gpu/vf0.info &&
+        echo 'vf1:$$((GPU_TOTAL_MEM / GPU_VF_COUNT))MiB' > /mnt/shared/gpu/vf1.info &&
+        echo '[gpu-broker] VFs alocadas: vf0=$$(cat /mnt/shared/gpu/vf0.info) vf1=$$(cat /mnt/shared/gpu/vf1.info)' &&
+        tail -f /dev/null
+      "
+
+networks:
+  vmnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.100.0.0/24
+
+volumes:
+  vm1-disk:
+  vm2-disk:
+  vm-shared:

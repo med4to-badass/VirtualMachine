@@ -1,9 +1,9 @@
 <domain type="kvm">
   <name>vm2</name>
   <uuid>22222222-2222-2222-2222-222222222222</uuid>
-  <memory unit="GiB">8</memory>
-  <currentMemory unit="GiB">8</currentMemory>
-  <vcpu placement="static">4</vcpu>
+  <memory unit="GiB">6</memory>
+  <currentMemory unit="GiB">6</currentMemory>
+  <vcpu placement="static">2</vcpu>
 
   <features>
     <acpi/>
@@ -22,7 +22,7 @@
   </features>
 
   <cpu mode="host-passthrough" check="none" migratable="on">
-    <topology sockets="1" dies="1" cores="4" threads="1"/>
+    <topology sockets="1" dies="1" cores="2" threads="1"/>
   </cpu>
 
   <clock offset="localtime">
