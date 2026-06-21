@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Máquinas Virtuais Gamer – Cloud Gaming</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #0a0e1a;
+      font-family: 'Rubik', system-ui, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 48px 24px;
+    }
+
+    .card {
+      width: 600px;
+      max-width: 100%;
+      border-radius: 28px;
+      overflow: hidden;
+      background: #0d1426;
+      border: 1px solid #1f6fd6;
+      box-shadow:
+        0 0 0 1px rgba(31, 111, 214, 0.25),
+        0 30px 80px -20px rgba(0, 0, 0, 0.8);
+    }
+
+    /* ── Header ── */
+    .card__header {
+      background: linear-gradient(180deg, #1f63b8 0%, #15518f 100%);
+      padding: 36px 40px 56px;
+      text-align: center;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #0d1426;
+      color: #5fa8ee;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      padding: 12px 26px;
+      border-radius: 14px;
+    }
+
+    .card__title {
+      color: #ffffff;
+      font-size: 46px;
+      font-weight: 800;
+      line-height: 1.05;
+      margin-top: 30px;
+    }
+
+    .card__subtitle {
+      color: #aecdf0;
+      font-size: 24px;
+      font-weight: 400;
+      margin-top: 18px;
+    }
+
+    /* ── Body ── */
+    .card__body {
+      padding: 34px 40px 40px;
+    }
+
+    .specs-label {
+      color: #7d8aa3;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .specs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 20px;
+    }
+
+    .spec-item {
+      background: #131c30;
+      border: 1px solid #1e2a45;
+      border-radius: 16px;
+      padding: 22px 24px;
+    }
+
+    .spec-item__label {
+      color: #7d8aa3;
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .spec-item__value {
+      color: #ffffff;
+      font-size: 25px;
+      font-weight: 700;
+      margin-top: 8px;
+    }
+
+    .internet-item {
+      background: #131c30;
+      border: 1px solid #1e2a45;
+      border-radius: 16px;
+      padding: 22px 24px;
+      margin-top: 18px;
+    }
+
+    /* ── Feature list ── */
+    .features {
+      margin-top: 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .feature__check {
+      flex: none;
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(180deg, #7bbf2f, #5a9c1e);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .feature__text {
+      color: #dbe4f0;
+      font-size: 24px;
+    }
+
+    /* ── Price box ── */
+    .price-box {
+      margin-top: 30px;
+      background: linear-gradient(180deg, #1f63b8, #184e92);
+      border-radius: 18px;
+      padding: 24px 30px 28px;
+      text-align: center;
+    }
+
+    .price-box__label {
+      color: #aecdf0;
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: 1.5px;
+    }
+
+    .price-box__value {
+      color: #ffffff;
+      font-size: 64px;
+      font-weight: 800;
+      margin-top: 8px;
+      line-height: 1;
+    }
+
+    .price-box__period {
+      color: #aecdf0;
+      font-size: 30px;
+      font-weight: 400;
+    }
+
+    /* ── CTA ── */
+    .cta {
+      margin-top: 20px;
+      width: 100%;
+      background: #1f3115;
+      border: 1px solid #3f5a22;
+      border-radius: 18px;
+      padding: 24px;
+      color: #9ccc43;
+      font-size: 25px;
+      font-weight: 700;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    .cta:hover {
+      background: #26401a;
+    }
+
+    @media (max-width: 520px) {
+      .card__title { font-size: 34px; }
+      .card__subtitle { font-size: 18px; }
+      .specs-grid { grid-template-columns: 1fr; }
+      .spec-item__value { font-size: 20px; }
+      .feature__text { font-size: 18px; }
+      .price-box__value { font-size: 48px; }
+      .cta { font-size: 19px; }
+    }
+
+    @media print {
+      @page { margin: 0; }
+      body { padding: 0.5in; background: #0a0e1a; }
+      * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- Header -->
+  <div class="card__header">
+    <div class="badge">CLOUD GAMING</div>
+    <h1 class="card__title">Máquinas Virtuais Gamer</h1>
+    <p class="card__subtitle">Jogue tudo, sem travar, na nuvem</p>
+  </div>
+
+  <!-- Body -->
+  <div class="card__body">
+
+    <div class="specs-label">ESPECIFICAÇÕES DA MÁQUINA</div>
+
+    <!-- Spec grid -->
+    <div class="specs-grid">
+      <div class="spec-item">
+        <div class="spec-item__label">PROCESSADOR</div>
+        <div class="spec-item__value">Ryzen 5 3600</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-item__label">PLACA DE VÍDEO</div>
+        <div class="spec-item__value">RX 6600</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-item__label">MEMÓRIA RAM</div>
+        <div class="spec-item__value">16 GB</div>
+      </div>
+      <div class="spec-item">
+        <div class="spec-item__label">ARMAZENAMENTO</div>
+        <div class="spec-item__value">500 GB SSD</div>
+      </div>
+    </div>
+
+    <!-- Internet full-width -->
+    <div class="internet-item">
+      <div class="spec-item__label">INTERNET</div>
+      <div class="spec-item__value">1 Gb upload e download</div>
+    </div>
+
+    <!-- Feature list -->
+    <div class="features">
+      <div class="feature">
+        <div class="feature__check">✓</div>
+        <div class="feature__text">Roda todos os jogos, inclusive com anti-cheat</div>
+      </div>
+      <div class="feature">
+        <div class="feature__check">✓</div>
+        <div class="feature__text">Servidor dedicado, só pra você</div>
+      </div>
+      <div class="feature">
+        <div class="feature__check">✓</div>
+        <div class="feature__text">Teste grátis de 6 horas</div>
+      </div>
+    </div>
+
+    <!-- Price box -->
+    <div class="price-box">
+      <div class="price-box__label">PLANO SEMANAL</div>
+      <div style="margin-top:8px;">
+        <span class="price-box__value">R$ 75</span>
+        <span class="price-box__period"> / semana</span>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <button class="cta">★ Assine 1 semana e ganhe +1 de brinde</button>
+
+  </div>
+</div>
+
+</body>
+</html>
