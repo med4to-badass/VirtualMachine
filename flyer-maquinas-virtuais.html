@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Flyer – Máquinas Virtuais Gamer</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,400;0,700;0,800;0,900;1,900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background: #060a14;
+      font-family: 'Rubik', system-ui, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 32px 16px;
+    }
+
+    /* ── Flyer shell: proporção A5 paisagem (148×210mm → ~595×842px em tela) ── */
+    .flyer {
+      width: 700px;
+      position: relative;
+      background: #080d1c;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 0 0 1px rgba(31,111,214,.35), 0 40px 100px -20px #000;
+    }
+
+    /* ── Fundo com grid + glow ── */
+    .flyer__bg {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% -5%, rgba(31,99,184,.55) 0%, transparent 70%),
+        radial-gradient(ellipse 45% 35% at 80% 110%, rgba(100,200,60,.18) 0%, transparent 65%);
+    }
+
+    .flyer__grid {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(31,111,214,.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(31,111,214,.07) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+
+    /* ── Conteúdo ── */
+    .flyer__inner {
+      position: relative;
+      z-index: 1;
+      padding: 48px 52px 44px;
+    }
+
+    /* ── Topo ── */
+    .top-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 36px;
+    }
+
+    .badge {
+      background: rgba(31,111,214,.18);
+      border: 1px solid rgba(31,111,214,.5);
+      color: #5fa8ee;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      padding: 8px 20px;
+      border-radius: 100px;
+      text-transform: uppercase;
+    }
+
+    .free-trial {
+      background: linear-gradient(135deg, #7bbf2f, #5a9c1e);
+      color: #fff;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      padding: 8px 20px;
+      border-radius: 100px;
+    }
+
+    /* ── Headline ── */
+    .headline {
+      font-size: 58px;
+      font-weight: 900;
+      font-style: italic;
+      line-height: 1;
+      color: #fff;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+    }
+
+    .headline em {
+      font-style: italic;
+      background: linear-gradient(90deg, #4faaff, #a3d4ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subline {
+      margin-top: 14px;
+      color: #7d9cc4;
+      font-size: 19px;
+      font-weight: 500;
+    }
+
+    /* ── Divisor ── */
+    .divider {
+      height: 1px;
+      background: linear-gradient(90deg, rgba(31,111,214,.6) 0%, transparent 100%);
+      margin: 32px 0;
+    }
+
+    /* ── Specs ── */
+    .specs-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .spec {
+      background: rgba(19,28,48,.9);
+      border: 1px solid #1e2a45;
+      border-radius: 14px;
+      padding: 16px 18px;
+    }
+
+    .spec__icon {
+      font-size: 20px;
+      margin-bottom: 8px;
+    }
+
+    .spec__label {
+      color: #5a6f90;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .spec__value {
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      margin-top: 4px;
+    }
+
+    .internet-bar {
+      background: rgba(19,28,48,.9);
+      border: 1px solid #1e2a45;
+      border-radius: 14px;
+      padding: 16px 22px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .internet-bar__icon { font-size: 22px; }
+
+    .internet-bar__label {
+      color: #5a6f90;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .internet-bar__value {
+      color: #fff;
+      font-size: 17px;
+      font-weight: 700;
+      margin-top: 2px;
+    }
+
+    /* ── Features ── */
+    .features {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .feature {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .feature__dot {
+      flex: none;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #7bbf2f, #4a8a12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 800;
+      color: #fff;
+    }
+
+    .feature__text {
+      color: #c8d8ee;
+      font-size: 18px;
+      font-weight: 500;
+    }
+
+    /* ── Preço + CTA ── */
+    .bottom-row {
+      display: flex;
+      align-items: stretch;
+      gap: 20px;
+      margin-top: 32px;
+    }
+
+    .price-block {
+      flex: 1;
+      background: linear-gradient(145deg, #1f63b8, #153f80);
+      border-radius: 18px;
+      padding: 22px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .price-block__plan {
+      color: #aecdf0;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+
+    .price-block__amount {
+      color: #fff;
+      font-size: 54px;
+      font-weight: 900;
+      line-height: 1;
+      margin-top: 6px;
+    }
+
+    .price-block__period {
+      color: #aecdf0;
+      font-size: 20px;
+      font-weight: 400;
+    }
+
+    .cta-block {
+      flex: 1;
+      background: #1a2e0f;
+      border: 1px solid #3f5a22;
+      border-radius: 18px;
+      padding: 22px 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      cursor: pointer;
+      transition: background .15s;
+    }
+
+    .cta-block:hover { background: #223c12; }
+
+    .cta-block__star {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .cta-block__main {
+      color: #9ccc43;
+      font-size: 19px;
+      font-weight: 800;
+      line-height: 1.25;
+    }
+
+    .cta-block__sub {
+      color: #6a9a30;
+      font-size: 13px;
+      font-weight: 500;
+      margin-top: 6px;
+    }
+
+    /* ── Rodapé ── */
+    .footer {
+      margin-top: 28px;
+      border-top: 1px solid rgba(31,111,214,.2);
+      padding-top: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer__brand {
+      color: #2d4a72;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 1px;
+    }
+
+    .footer__contact {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer__item {
+      color: #4a6690;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    /* ── Glow accent lines ── */
+    .accent-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: linear-gradient(90deg, transparent 0%, #1f63b8 35%, #4faaff 50%, #1f63b8 65%, transparent 100%);
+    }
+
+    /* ── Print ── */
+    @media print {
+      @page { margin: 0; size: A5 landscape; }
+      body { padding: 0; background: #060a14; }
+      * { print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+      .flyer { border-radius: 0; box-shadow: none; width: 100%; }
+    }
+
+    @media (max-width: 600px) {
+      .flyer__inner { padding: 32px 28px; }
+      .headline { font-size: 38px; }
+      .specs-row { grid-template-columns: 1fr 1fr; }
+      .bottom-row { flex-direction: column; }
+      .price-block__amount { font-size: 42px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="flyer">
+  <div class="accent-line"></div>
+  <div class="flyer__bg"></div>
+  <div class="flyer__grid"></div>
+
+  <div class="flyer__inner">
+
+    <!-- Topo -->
+    <div class="top-row">
+      <div class="badge">☁ Cloud Gaming</div>
+      <div class="free-trial">✦ Teste grátis 6h</div>
+    </div>
+
+    <!-- Headline -->
+    <h1 class="headline">Jogue tudo<br><em>na nuvem</em></h1>
+    <p class="subline">Máquina dedicada, sem lag, sem limitação — só pra você.</p>
+
+    <div class="divider"></div>
+
+    <!-- Especificações -->
+    <div class="specs-row">
+      <div class="spec">
+        <div class="spec__icon">🖥</div>
+        <div class="spec__label">Processador</div>
+        <div class="spec__value">Ryzen 5 3600</div>
+      </div>
+      <div class="spec">
+        <div class="spec__icon">🎮</div>
+        <div class="spec__label">Placa de Vídeo</div>
+        <div class="spec__value">RX 6600</div>
+      </div>
+      <div class="spec">
+        <div class="spec__icon">⚡</div>
+        <div class="spec__label">Memória RAM</div>
+        <div class="spec__value">16 GB</div>
+      </div>
+      <div class="spec">
+        <div class="spec__icon">💾</div>
+        <div class="spec__label">Armazenamento</div>
+        <div class="spec__value">500 GB SSD</div>
+      </div>
+    </div>
+
+    <div class="internet-bar">
+      <div class="internet-bar__icon">🌐</div>
+      <div>
+        <div class="internet-bar__label">Internet</div>
+        <div class="internet-bar__value">1 Gb de upload e download</div>
+      </div>
+    </div>
+
+    <!-- Benefícios -->
+    <div class="features">
+      <div class="feature">
+        <div class="feature__dot">✓</div>
+        <div class="feature__text">Roda todos os jogos, inclusive com anti-cheat</div>
+      </div>
+      <div class="feature">
+        <div class="feature__dot">✓</div>
+        <div class="feature__text">Servidor dedicado, só pra você</div>
+      </div>
+      <div class="feature">
+        <div class="feature__dot">✓</div>
+        <div class="feature__text">Teste grátis de 6 horas sem compromisso</div>
+      </div>
+    </div>
+
+    <!-- Preço + CTA -->
+    <div class="bottom-row">
+      <div class="price-block">
+        <div class="price-block__plan">Plano Semanal</div>
+        <div style="line-height:1; margin-top:6px;">
+          <span class="price-block__amount">R$ 75</span>
+          <span class="price-block__period"> / semana</span>
+        </div>
+      </div>
+      <div class="cta-block">
+        <div class="cta-block__star">★</div>
+        <div class="cta-block__main">Assine 1 semana<br>e ganhe +1 de brinde</div>
+        <div class="cta-block__sub">Oferta por tempo limitado</div>
+      </div>
+    </div>
+
+    <!-- Rodapé -->
+    <div class="footer">
+      <div class="footer__brand">CLOUD GAMING &nbsp;·&nbsp; MÁQUINAS VIRTUAIS GAMER</div>
+      <div class="footer__contact">
+        <span class="footer__item">💬 Entre em contato</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+</body>
+</html>
