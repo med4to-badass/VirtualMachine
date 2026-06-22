@@ -49,6 +49,7 @@ sata0:1.deviceType = "cdrom-image"
 ethernet0.present = "TRUE"
 ethernet0.connectionType = "nat"
 ethernet0.virtualDev = "e1000e"
+ethernet0.pciSlotNumber = "32"
 usb.present = "TRUE"
 "@ | Set-Content $vmx
 
